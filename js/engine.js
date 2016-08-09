@@ -14,7 +14,7 @@
  * a little simpler to work with.
  */
 
-var Engine = (function(global) {
+var Engine = (function (global) {
     /* Predefine the variables we'll be using within this scope,
      * create the canvas element, grab the 2D context for that canvas
      * set the canvas elements height/width and add it to the DOM.
@@ -80,7 +80,7 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
+        setInterval(checkCollisions, 1000);
     }
 
     /* This is called by the update function and loops through all of the
@@ -91,10 +91,25 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
-        allEnemies.forEach(function(enemy) {
+        allEnemies.forEach(function (enemy) {
             enemy.update(dt);
         });
-        player.update();
+        player.update(dt);
+    }
+
+    /* Checks all side of the player object for collision against the array of
+     * enemies. If the player collides with a enemy the player is reset back to
+     * start position.
+     */
+    function checkCollisions() {
+        for (var i = 0; i < allEnemies.length; i++) {
+            if (player.getCollider().left < allEnemies[i].getCollider().right &&
+                player.getCollider().right > allEnemies[i].getCollider().left &&
+                player.getCollider().top < allEnemies[i].getCollider().bottom &&
+                player.getCollider().bottom > allEnemies[i].getCollider().top) {
+                player.reset();
+            }
+        }
     }
 
     /* This function initially draws the "game level", it will then call
@@ -135,7 +150,6 @@ var Engine = (function(global) {
                 ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
             }
         }
-
         renderEntities();
     }
 
@@ -147,10 +161,9 @@ var Engine = (function(global) {
         /* Loop through all of the objects within the allEnemies array and call
          * the render function you have defined.
          */
-        allEnemies.forEach(function(enemy) {
+        allEnemies.forEach(function (enemy) {
             enemy.render();
         });
-
         player.render();
     }
 
@@ -159,7 +172,7 @@ var Engine = (function(global) {
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
-        // noop
+        player.reset();
     }
 
     /* Go ahead and load all of the images we know we're going to need to
